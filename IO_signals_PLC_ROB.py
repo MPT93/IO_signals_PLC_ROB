@@ -1,4 +1,5 @@
 import csv
+import openpyxl as xl
 
 
 def get_robot_plc_signals(sheet, signals_with_descriptions={}):
@@ -149,3 +150,22 @@ def get_csv_files_with_signals_from_workbook(workbook):
             csv_writer = csv.writer(file, delimiter=';', lineterminator='\n')
             for signal, description in signals_with_descriptions.items():
                 csv_writer.writerow([signal, description])
+
+
+def get_csv_files_with_signals_from_all_xlsm_files_in_directory(path):
+    '''
+    Creates csv files with signals, and descriptions corresponding to all sheets avilabe in all workbooks (xlsm files) in the actual path.
+
+
+    Parameters:
+        path (Path): The actual path with all workbooks, from which csv files should be extracted.
+
+    Returns:
+        None
+    '''
+    list_of_files = path.glob("*.xlsm")
+
+    for fille in list_of_files:
+        fille_name = str(fille)
+        workbook = xl.load_workbook(fille_name)
+        get_csv_files_with_signals_from_workbook(workbook)
