@@ -1,5 +1,6 @@
 import csv
 import openpyxl as xl
+from pathlib import Path
 
 
 def get_robot_plc_signals(sheet, signals_with_descriptions={}):
@@ -169,3 +170,9 @@ def get_csv_files_with_signals_from_all_xlsm_files_in_directory(path):
         fille_name = str(fille)
         workbook = xl.load_workbook(fille_name)
         get_csv_files_with_signals_from_workbook(workbook)
+
+
+if __name__ == "__main__":
+
+    path = Path()
+    get_csv_files_with_signals_from_all_xlsm_files_in_directory(path)
