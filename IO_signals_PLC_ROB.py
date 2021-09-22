@@ -1,6 +1,4 @@
 import csv
-import openpyxl as xl
-from pathlib import Path
 
 
 def get_robot_plc_signals(sheet, signals_with_descriptions={}):
@@ -102,12 +100,52 @@ def get_robot_collisions_signals(sheet, signals_with_descriptions={}):
 
                     signals_with_descriptions.update(
                         {
-                            f"E{collision_signal}": f"Robotzone {int(collision_signal)-40} free Rob < {robot_name}",
-                            f"E{int(collision_signal)+40}": f"Acknowledge robotcollision {int(collision_signal)-40} Rob > {robot_name}",
-                            f"A{int(collision_signal)+40}": f"Request robotcollision {int(collision_signal)-40} Rob > {robot_name}",
-                            f"A{collision_signal}": f"Release robotcollision {int(collision_signal)-40} Rob > {robot_name}",
+                            f"E{collision_signal}": f"Robot zone {int(collision_signal)-40} free Rob < {robot_name}",
+                            f"E{int(collision_signal)+40}": f"Acknowledge robot collision {int(collision_signal)-40} Rob > {robot_name}",
+                            f"A{int(collision_signal)+40}": f"Request robot collision {int(collision_signal)-40} Rob > {robot_name}",
+                            f"A{collision_signal}": f"Release robot collision {int(collision_signal)-40} Rob > {robot_name}",
 
                         }
                     )
 
     return signals_with_descriptions
+
+
+def get_csv_files_with_signals_from_workbook(workbook):
+    '''
+    Creates csv files with signals, and descriptions corresponding to sheets avilabe in workbook.
+
+
+    Parameters:
+        workbook (Workbook): The single workbook with sheets corresponding to robots name avilabe in one station.
+
+
+    Returns:
+        None
+    '''
+    sheets_with_robot = []
+
+    for sheet in workbook.sheetnames:
+        if "R0" in sheet:
+            sheets_with_robot.append(sheet)
+
+    for sheet in sheets_with_robot:
+
+        final_file_name = sheet + ".csv"
+
+        sheet = workbook[sheet]
+        signals_with_descriptions = {}
+
+        signals_with_descriptions = get_robot_plc_signals(
+            sheet,
+            signals_with_descriptions
+        )
+        signals_with_descriptions = get_robot_collisions_signals(
+            sheet,
+            signals_with_descriptions
+        )
+
+        with open(final_file_name, "w", encoding="utf-8") as file:
+            csv_writer = csv.writer(file, delimiter=';', lineterminator='\n')
+            for signal, description in signals_with_descriptions.items():
+                csv_writer.writerow([signal, description])
